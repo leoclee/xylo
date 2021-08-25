@@ -1,0 +1,358 @@
+<html>
+	<style>
+		 body {
+			font-family: Sans-Serif;
+			margin:0;
+			padding:0;
+			background-color:#333;
+		 }
+		.bar {
+			border:4px solid black;
+			border-radius: 2em;
+			flex-grow: 1;
+			text-align: center;
+			height: calc(100% - 8px);
+			margin:0 .25%;
+			/** center vertically, alternative is to use line-height:20em **/
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
+		.played {
+			box-shadow: 0 0 0 0 rgba(255, 255, 255, 1);
+			animation: pulse 2s;
+		}
+		.bar span {
+			background-color: #FFF;
+			border-radius: 50%;
+			width: 30px;
+			height: 30px;
+			line-height: 30px;
+		}
+		#container {
+			width:100%;
+			display: flex;
+			height: calc(100% - 420px);
+			min-height: 50px;
+		}
+		#bar1 {
+			background-color: #231852;
+		}
+		#bar2 {
+			background-color: #0060c1;
+		}
+		#bar3 {
+			background-color: #00b0c8;
+		}
+		#bar4 {
+			background-color: #6aae00;
+		}
+		#bar5 {
+			background-color: #e5e219;
+		}
+		#bar6 {
+			background-color: #fc9200;
+		}
+		#bar7 {
+			background-color: #ed181e;
+		}
+		#bar8 {
+			background-color: #a50010;
+		}
+/** see https://www.florin-pop.com/blog/2019/03/css-pulse-effect/ **/
+/** TODO look into how we can get the shadows entirely over or entirely under adjacent elements https://blog.dudak.me/2014/css-shadows-under-adjacent-elements/ **/
+@keyframes pulse {
+	0% {
+		box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
+	}
+
+	70% {
+		box-shadow: 0 0 0 30px rgba(255, 255, 255, 0);
+	}
+
+	100% {
+		box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+	}
+}
+
+
+
+#notescontainer {
+	height: calc(400px + 20px);
+	position:relative;
+	overflow:auto;
+    background: linear-gradient(to bottom,
+		rgba(0,0,0,0) 73px,
+		gray 75px,
+		rgba(0,0,0,0) 77px,
+		rgba(0,0,0,0) 173px,
+		gray 175px,
+		rgba(0,0,0,0) 177px,
+		rgba(0,0,0,0) 273px,
+		gray 275px,
+		rgba(0,0,0,0) 277px,
+		rgba(0,0,0,0) 373px,
+		gray 375px,
+		rgba(0,0,0,0) 377px);
+}
+#notes {
+	position: absolute;
+	height:100%;
+}
+.note {
+	position:absolute;
+	height: 30px;
+	width: 30px;
+	border-radius: 50%;
+	background-color:white;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	border: 10px solid black;
+}
+.note span {
+	/* this span is only here to make sure the shadow animation appears under adjacent elements */
+	position:absolute;
+	height: 50px;
+	width: 50px;
+	z-index: -1;
+	border-radius: 50%;
+}
+.note1 {
+	border-color: #231852;
+	top: 350px;
+}
+.note2 {
+	border-color: #0060c1;
+	top: 300px;
+}
+.note3 {
+	border-color: #00b0c8;
+	top: 250px;
+}
+.note4 {
+	border-color: #6aae00;
+	top: 200px;
+}
+.note5 {
+	border-color: #e5e219;
+	top: 150px;
+}
+.note6 {
+	border-color: #fc9200;
+	top: 100px;
+}
+.note7 {
+	border-color: #ed181e;
+	top: 50px;
+}
+.note8 {
+	border-color: #a50010;
+	top: 0px;
+}
+.note1:before, #bar1 span:before {
+	content: "1";
+}
+.note2:before, #bar2 span:before {
+	content: "2";
+}
+.note3:before, #bar3 span:before {
+	content: "3";
+}
+.note4:before, #bar4 span:before {
+	content: "4";
+}
+.note5:before, #bar5 span:before {
+	content: "5";
+}
+.note6:before, #bar6 span:before {
+	content: "6";
+}
+.note7:before, #bar7 span:before {
+	content: "7";
+}
+.note8:before, #bar8 span:before {
+	content: "8";
+}
+.letter .note1:before, .letter #bar1 span:before, .letter .note8:before, .letter #bar8 span:before {
+	content: "C";
+}
+.letter .note2:before, .letter #bar2 span:before {
+	content: "D";
+}
+.letter .note3:before, .letter #bar3 span:before {
+	content: "E";
+}
+.letter .note4:before, .letter #bar4 span:before {
+	content: "F";
+}
+.letter .note5:before, .letter #bar5 span:before {
+	content: "G";
+}
+.letter .note6:before, .letter #bar6 span:before {
+	content: "A";
+}
+.letter .note7:before, .letter #bar7 span:before {
+	content: "B";
+}
+#cursor {
+	height:100%;
+	width:4px;
+	background-color:yellow;
+	position:absolute;
+}
+#cursor.hidden {
+	display:none;
+}
+button {
+	/** this is temporary until I figure out a better place to put this thing **/
+	position: absolute;
+	top:0;
+	left:0;
+}
+	</style>
+	<body>
+	<!-- sounds by NoiseCollector (https://freesound.org/people/NoiseCollector/packs/6829/) -->
+	<audio id="xylo1" src="sounds/107510__noisecollector__toyxlo1.wav" preload="auto" autoplay="false" ></audio>
+	<audio id="xylo2" src="sounds/107511__noisecollector__toyxlo2.wav" preload="auto" autoplay="false" ></audio>
+	<audio id="xylo3" src="sounds/107512__noisecollector__toyxlo3.wav" preload="auto" autoplay="false" ></audio>
+	<audio id="xylo4" src="sounds/107513__noisecollector__toyxlo4.wav" preload="auto" autoplay="false" ></audio>
+	<audio id="xylo5" src="sounds/107514__noisecollector__toyxlo5.wav" preload="auto" autoplay="false" ></audio>
+	<audio id="xylo6" src="sounds/107515__noisecollector__toyxlo6.wav" preload="auto" autoplay="false" ></audio>
+	<audio id="xylo7" src="sounds/107516__noisecollector__toyxlo7.wav" preload="auto" autoplay="false" ></audio>
+	<audio id="xylo8" src="sounds/107517__noisecollector__toyxlo8.wav" preload="auto" autoplay="false" ></audio>
+	<div id="container" class="letter">
+		<a onclick="playSound(1);" id="bar1" class="bar"><span></span></a>
+		<a onclick="playSound(2);" id="bar2" class="bar"><span></span></a>
+		<a onclick="playSound(3);" id="bar3" class="bar"><span></span></a>
+		<a onclick="playSound(4);" id="bar4" class="bar"><span></span></a>
+		<a onclick="playSound(5);" id="bar5" class="bar"><span></span></a>
+		<a onclick="playSound(6);" id="bar6" class="bar"><span></span></a>
+		<a onclick="playSound(7);" id="bar7" class="bar"><span></span></a>
+		<a onclick="playSound(8);" id="bar8" class="bar"><span></span></a>
+	</div>
+	<button onclick="play()">Play</button>
+	<div id="notescontainer" class="letter">
+		<div id="cursor"></div>
+		<div id="notes"></div>
+	</div>
+    <script>
+    function playSound(id) {
+		if (id < 1 || id > 8) {
+			return;
+		}
+		var sound = document.getElementById("xylo" + id).cloneNode();
+		sound.play();
+		let bar = document.getElementById("bar" + id);
+		bar.classList.add("played");
+
+		// reset animation (see https://stackoverflow.com/a/45036752)
+		bar.style.animation = 'none';
+		bar.offsetHeight; /* trigger reflow */
+		bar.style.animation = null;
+	}
+	function handleKeyPress(e) {
+		let charCode = e.charCode;
+		if (e.charCode >=49 && e.charCode <= 56) {
+			// 12345678
+			playSound(e.charCode - 48);
+		} else if (e.charCode >= 99 && e.charCode <= 103) {
+			// cdefg
+			playSound(e.charCode - 98);
+		} else if (e.charCode == 97 || e.charCode == 98) {
+			// ab
+			playSound(e.charCode - 91);
+		} else if (e.charCode == 67) {
+			// C
+			playSound(8);
+		}
+	}
+	document.addEventListener('keypress', handleKeyPress);
+
+
+	var song = {
+		// Mary Had a Little Lamb
+		//speed: 400,
+		//notes: [3,2,1,2,3,3,3,,2,2,2,,3,5,5,,3,2,1,2,3,3,3,3,2,2,3,2,1,,,]
+		// Row, Row Your Boat
+		//speed: 175,
+		//notes: [1,,,1,,,1,,2,3,,,3,,2,3,,4,5,,,8,8,8,5,5,5,3,3,3,1,1,1,5,,4,3,,2,1,,,,,0]
+		// Twinkle Twinkle Little Star
+		//speed: 300,
+		//notes: [1,1,5,5,6,6,5,,4,4,3,3,2,2,1,,5,5,4,4,3,3,2,,5,5,4,4,3,3,2,,1,1,5,5,6,6,5,,4,4,3,3,2,2,1,0]
+		// Old MacDonald
+		speed: 150,
+		notes: [5,,5,,5,,2,,3,,3,,2,,,,7,,7,,6,,6,,5,,,,,,2,,
+		        5,,5,,5,,2,,3,,3,,2,,,,7,,7,,6,,6,,5,,,,,,2,2,
+				5,,5,,5,,2,2,5,,5,,5,,,,5,5,5,,5,5,5,, 5,5,5,5,5,,5,,
+				5,,5,,5,,2,,3,,3,,2,,,,7,,7,,6,,6,,5,,,,,,,0]
+	};
+	let notes = document.getElementById("notes");
+	notes.style.width = song.notes.length * 50;
+	notes.addEventListener('click', function(e) {
+		offsetTime = e.offsetX * song.speed / 50;
+		nextNotesIndexToPlay = Math.ceil(offsetTime / song.speed);
+		if (id != null) {
+			startTime = Date.now();
+		} else {
+			cursor.style.left = (offsetTime * 50 / song.speed) + 25 - 2;
+		}
+	});
+	for (const [i, value] of song.notes.entries()) {
+		if (value && value > 0) {
+			let note = document.createElement("div");
+			let span = document.createElement("span");
+			note.style.left = i*50;
+			note.className = "note note" + value;
+			note.dataset.index = i;
+			note.appendChild(span);
+			notes.appendChild(note);
+		}
+	}
+	document.getElementById("cursor").style.left = 25 - 2;
+	var id = null;
+	var offsetTime = 0;
+	var startTime;
+	var nextNotesIndexToPlay = 0;
+	function play() {
+		clearInterval(id);
+		if (id != null) {
+			nextNotesIndexToPlay = 0;
+			offsetTime = 0;
+		}
+		startTime = Date.now();
+		id = setInterval(frame, 10);
+		function frame() {
+			let cursor = document.getElementById("cursor");
+			let elapsedTime = offsetTime + Date.now() - startTime;
+			cursor.style.left = (elapsedTime * 50 / song.speed) + 25 - 2;
+			cursor.scrollIntoView({behavior:'auto',block:'center',inline:'center'});
+
+			if (Math.floor(elapsedTime / song.speed) == nextNotesIndexToPlay) {
+				let note = song.notes[nextNotesIndexToPlay];
+				if (note) {
+					playSound(note);
+					let noteElement = document.querySelector('.note[data-index="' + nextNotesIndexToPlay + '"] span');
+					noteElement.classList.add("played");
+
+					// reset animation (see https://stackoverflow.com/a/45036752)
+					noteElement.style.animation = 'none';
+					noteElement.offsetHeight; /* trigger reflow */
+					noteElement.style.animation = null;
+				}
+				nextNotesIndexToPlay++;
+			}
+
+			if (nextNotesIndexToPlay >= song.notes.length) {
+				clearInterval(id);
+				id = null;
+				nextNotesIndexToPlay = 0;
+				offsetTime = 0;
+				// TODO repeat
+				//setTimeout(play, song.speed);
+			}
+		}
+	}
+    </script>
+	</body>
+</html>
