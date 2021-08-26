@@ -221,7 +221,7 @@ button {
 	<audio id="xylo6" src="sounds/107515__noisecollector__toyxlo6.wav" preload="auto" autoplay="false" ></audio>
 	<audio id="xylo7" src="sounds/107516__noisecollector__toyxlo7.wav" preload="auto" autoplay="false" ></audio>
 	<audio id="xylo8" src="sounds/107517__noisecollector__toyxlo8.wav" preload="auto" autoplay="false" ></audio>
-	<div id="container" class="letter">
+	<div id="container">
 		<a onclick="playSound(1);" id="bar1" class="bar"><span></span></a>
 		<a onclick="playSound(2);" id="bar2" class="bar"><span></span></a>
 		<a onclick="playSound(3);" id="bar3" class="bar"><span></span></a>
@@ -232,7 +232,7 @@ button {
 		<a onclick="playSound(8);" id="bar8" class="bar"><span></span></a>
 	</div>
 	<button onclick="play()">Play</button>
-	<div id="notescontainer" class="letter">
+	<div id="notescontainer">
 		<div id="cursor"></div>
 		<div id="notes"></div>
 	</div>
@@ -272,16 +272,26 @@ button {
 
 	var song = {
 		// Mary Had a Little Lamb
-		//speed: 400,
-		//notes: [3,2,1,2,3,3,3,,2,2,2,,3,5,5,,3,2,1,2,3,3,3,3,2,2,3,2,1,,,]
+		/*
+		speed: 400,
+		measureLength: 4,
+		notes: [3,2,1,2,3,3,3,,2,2,2,,3,5,5,,3,2,1,2,3,3,3,3,2,2,3,2,1,,,0]
+		*/
 		// Row, Row Your Boat
-		//speed: 175,
-		//notes: [1,,,1,,,1,,2,3,,,3,,2,3,,4,5,,,8,8,8,5,5,5,3,3,3,1,1,1,5,,4,3,,2,1,,,,,0]
+		/*
+		speed: 175,
+		measureLength: 6,
+		notes: [1,,,1,,,1,,2,3,,,3,,2,3,,4,5,,,,,,8,8,8,5,5,5,3,3,3,1,1,1,5,,4,3,,2,1,,,,,0]
+		*/
 		// Twinkle Twinkle Little Star
-		//speed: 300,
-		//notes: [1,1,5,5,6,6,5,,4,4,3,3,2,2,1,,5,5,4,4,3,3,2,,5,5,4,4,3,3,2,,1,1,5,5,6,6,5,,4,4,3,3,2,2,1,0]
+		/*
+		speed: 300,
+		measureLength: 4,
+		notes: [1,1,5,5,6,6,5,,4,4,3,3,2,2,1,,5,5,4,4,3,3,2,,5,5,4,4,3,3,2,,1,1,5,5,6,6,5,,4,4,3,3,2,2,1,0]
+		*/
 		// Old MacDonald
 		speed: 150,
+		measureLength: 8,
 		notes: [5,,5,,5,,2,,3,,3,,2,,,,7,,7,,6,,6,,5,,,,,,2,,
 		        5,,5,,5,,2,,3,,3,,2,,,,7,,7,,6,,6,,5,,,,,,2,2,
 				5,,5,,5,,2,2,5,,5,,5,,,,5,5,5,,5,5,5,, 5,5,5,5,5,,5,,
@@ -309,6 +319,12 @@ button {
 			notes.appendChild(note);
 		}
 	}
+	// draw bar lines
+	if (song.measureLength && song.measureLength > 0 && song.measureLength < song.notes.length) {
+		let width = song.measureLength * 50;
+		notes.style.background = "repeating-linear-gradient(to right, rgb(0,0,0,0) 0, rgb(0,0,0,0) " + (width - 4) + "px, grey " + (width - 2) + "px, rgb(0,0,0,0) " + width + "px)";
+	}
+
 	document.getElementById("cursor").style.left = 25 - 2;
 	var id = null;
 	var offsetTime = 0;
@@ -321,7 +337,7 @@ button {
 			offsetTime = 0;
 		}
 		startTime = Date.now();
-		id = setInterval(frame, 10);
+		id = setInterval(frame, 20); // 16 is 120 fps, 41 is about 24 fps
 		function frame() {
 			let cursor = document.getElementById("cursor");
 			let elapsedTime = offsetTime + Date.now() - startTime;
