@@ -243,7 +243,6 @@ button {
 		<a onclick="playSound(7);" id="bar7" class="bar"><span></span></a>
 		<a onclick="playSound(8);" id="bar8" class="bar"><span></span></a>
 	</div>
-	<button onclick="play()">Play</button>
 	<div id="notescontainer">
 		<div id="cursor">
 			<div id="time"></div>
@@ -266,6 +265,7 @@ button {
 		bar.style.animation = null;
 	}
 	function handleKeyPress(e) {
+		// TODO charCode is deprecated
 		let charCode = e.charCode;
 		if (e.charCode >=49 && e.charCode <= 56) {
 			// 12345678
@@ -279,9 +279,29 @@ button {
 		} else if (e.charCode == 67) {
 			// C
 			playSound(8);
+		} else if (e.charCode == 32) {
+			// space
+			if (id == null) {
+				play();
+			} else {
+				pause();
+			}
+		}
+	}
+	function handleKeyDown(e) {
+		let key = e.key;
+		if (key === "Home") {
+			// home cannot be detected by key press
+			nextNotesIndexToPlay = 0;
+			offsetTime = 0;
+			if (id != null) {
+				startTime = Date.now();
+			}
+			updateCursor(0);
 		}
 	}
 	document.addEventListener('keypress', handleKeyPress);
+	document.addEventListener('keydown', handleKeyDown);
 
 
 	var song = {
@@ -368,10 +388,6 @@ button {
 	updateCursor(offsetTime);
 	function play() {
 		clearInterval(id);
-		if (id != null) {
-			nextNotesIndexToPlay = 0;
-			offsetTime = 0;
-		}
 		startTime = Date.now();
 		id = setInterval(frame, 20); // 16 is 120 fps, 41 is about 24 fps
 		function frame() {
@@ -404,6 +420,13 @@ button {
 				//setTimeout(play, song.speed);
 			}
 		}
+	}
+
+	function pause() {
+		clearInterval(id);
+		id = null;
+		// store current time as the offset
+		offsetTime += Date.now() - startTime;
 	}
 
 	function updateCursor(millis) {
