@@ -109,6 +109,7 @@
 	justify-content: center;
 	align-items: center;
 	border: 10px solid black;
+	pointer-events: none; /* can't deal with the offset changes right now https://stackoverflow.com/a/60272705 */
 }
 .note span {
 	/* this span is only here to make sure the shadow animation appears under adjacent elements */
@@ -201,8 +202,19 @@
 	background-color:yellow;
 	position:absolute;
 }
-#cursor.hidden {
-	display:none;
+#time {
+	height: 25px;
+	line-height: 25px;
+	color: yellow;
+	opacity: 0.5;
+	font-size:25px;
+	position: absolute;
+	transform: rotate(-90deg) translateY(-100%) translateX(-100%);
+	transform-origin: top left;
+	/* // use this for the reverse rotation
+	transform: rotate(90deg);
+	transform-origin: left top;
+	*/
 }
 button {
 	/** this is temporary until I figure out a better place to put this thing **/
@@ -233,7 +245,9 @@ button {
 	</div>
 	<button onclick="play()">Play</button>
 	<div id="notescontainer">
-		<div id="cursor"></div>
+		<div id="cursor">
+			<div id="time"></div>
+		</div>
 		<div id="notes"></div>
 	</div>
 	<script>
@@ -308,15 +322,16 @@ button {
 				2,,3,1,,,1]
 	};
 	let notes = document.getElementById("notes");
+	// songLength can pad the end of song if necessary (taking measure length into account and filling up the remainder of a measure with rests)
 	let songLength = (song.measureLength && song.measureLength > 0 && song.measureLength < song.notes.length) ? Math.ceil(song.notes.length/song.measureLength)*song.measureLength : song.notes.length;
 	notes.style.width = songLength * 50;
 	notes.addEventListener('click', function(e) {
-		offsetTime = e.offsetX * song.speed / 50;
+		offsetTime = Math.min((songLength - 1) * song.speed, Math.max(0, e.offsetX - 23) * song.speed / 50);
 		nextNotesIndexToPlay = Math.ceil(offsetTime / song.speed);
 		if (id != null) {
 			startTime = Date.now();
 		} else {
-			cursor.style.left = (offsetTime * 50 / song.speed) + 25 - 2;
+			updateCursor(offsetTime);
 		}
 	});
 	for (const [i, value] of song.notes.entries()) {
@@ -336,11 +351,11 @@ button {
 		notes.style.background = "repeating-linear-gradient(to right, rgb(0,0,0,0) 0, rgb(0,0,0,0) " + (width - 4) + "px, grey " + (width - 2) + "px, rgb(0,0,0,0) " + width + "px)";
 	}
 
-	document.getElementById("cursor").style.left = 25 - 2;
 	var id = null;
 	var offsetTime = 0;
 	var startTime;
 	var nextNotesIndexToPlay = 0;
+	updateCursor(offsetTime);
 	function play() {
 		clearInterval(id);
 		if (id != null) {
@@ -352,7 +367,7 @@ button {
 		function frame() {
 			let cursor = document.getElementById("cursor");
 			let elapsedTime = offsetTime + Date.now() - startTime;
-			cursor.style.left = (elapsedTime * 50 / song.speed) + 25 - 2;
+			updateCursor(elapsedTime);
 			cursor.scrollIntoView({behavior:'auto',block:'center',inline:'center'});
 
 			if (Math.floor(elapsedTime / song.speed) == nextNotesIndexToPlay) {
@@ -379,6 +394,15 @@ button {
 				//setTimeout(play, song.speed);
 			}
 		}
+	}
+
+	function updateCursor(millis) {
+		// set time
+		// inspired by https://stackoverflow.com/a/25279399
+		// this will probably start doing weird stuff for anything over an hour (unlikely?)
+		document.getElementById("time").innerText = new Date(Math.min((songLength - 1) * song.speed, millis)).toISOString().substr(14, 9);
+		// set cursor position
+		document.getElementById("cursor").style.left = (millis * 50 / song.speed) + 25 - 2;
 	}
 	</script>
 	</body>
