@@ -224,15 +224,6 @@ button {
 }
 	</style>
 	<body>
-	<!-- sounds by NoiseCollector (https://freesound.org/people/NoiseCollector/packs/6829/) -->
-	<audio id="xylo1" src="sounds/107510__noisecollector__toyxlo1.wav" preload="auto" autoplay="false" ></audio>
-	<audio id="xylo2" src="sounds/107511__noisecollector__toyxlo2.wav" preload="auto" autoplay="false" ></audio>
-	<audio id="xylo3" src="sounds/107512__noisecollector__toyxlo3.wav" preload="auto" autoplay="false" ></audio>
-	<audio id="xylo4" src="sounds/107513__noisecollector__toyxlo4.wav" preload="auto" autoplay="false" ></audio>
-	<audio id="xylo5" src="sounds/107514__noisecollector__toyxlo5.wav" preload="auto" autoplay="false" ></audio>
-	<audio id="xylo6" src="sounds/107515__noisecollector__toyxlo6.wav" preload="auto" autoplay="false" ></audio>
-	<audio id="xylo7" src="sounds/107516__noisecollector__toyxlo7.wav" preload="auto" autoplay="false" ></audio>
-	<audio id="xylo8" src="sounds/107517__noisecollector__toyxlo8.wav" preload="auto" autoplay="false" ></audio>
 	<div id="container">
 		<a onclick="playSound(1);" id="bar1" class="bar"><span></span></a>
 		<a onclick="playSound(2);" id="bar2" class="bar"><span></span></a>
@@ -249,13 +240,23 @@ button {
 		</div>
 		<div id="notes"></div>
 	</div>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js" integrity="sha512-6+YN/9o9BWrk6wSfGxQGpt3EUK6XeHi6yeHV+TYD2GR0Sj/cggRpXr1BrAQf0as6XslxomMUxXp2vIl+fv0QRA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 	<script>
+	// sounds by NoiseCollector (https://freesound.org/people/NoiseCollector/packs/6829/)
+	var sounds = [
+		new Howl({src: ['sounds/107510__noisecollector__toyxlo1.wav']}),
+		new Howl({src: ['sounds/107511__noisecollector__toyxlo2.wav']}),
+		new Howl({src: ['sounds/107512__noisecollector__toyxlo3.wav']}),
+		new Howl({src: ['sounds/107513__noisecollector__toyxlo4.wav']}),
+		new Howl({src: ['sounds/107514__noisecollector__toyxlo5.wav']}),
+		new Howl({src: ['sounds/107515__noisecollector__toyxlo6.wav']}),
+		new Howl({src: ['sounds/107516__noisecollector__toyxlo7.wav']}),
+		new Howl({src: ['sounds/107517__noisecollector__toyxlo8.wav']})]
     function playSound(id) {
 		if (id < 1 || id > 8) {
 			return;
 		}
-		var sound = document.getElementById("xylo" + id).cloneNode();
-		sound.play();
+		sounds[id - 1].play();
 		let bar = document.getElementById("bar" + id);
 		bar.classList.add("played");
 
@@ -324,14 +325,12 @@ button {
 		notes: [1,1,5,5,6,6,5,,4,4,3,3,2,2,1,,5,5,4,4,3,3,2,,5,5,4,4,3,3,2,,1,1,5,5,6,6,5,,4,4,3,3,2,2,1]
 		*/
 		// Old MacDonald
-		/*
 		speed: 150,
 		measureLength: 8,
 		notes: [5,,5,,5,,2,,3,,3,,2,,,,7,,7,,6,,6,,5,,,,,,2,,
 		        5,,5,,5,,2,,3,,3,,2,,,,7,,7,,6,,6,,5,,,,,,2,2,
 				5,,5,,5,,2,2,5,,5,,5,,,,5,5,5,,5,5,5,, 5,5,5,5,5,,5,,
 				5,,5,,5,,2,,3,,3,,2,,,,7,,7,,6,,6,,5]
-		*/
 		// Sweet Dreams (Goodnight Song) by Super Simple (see https://supersimple.com/downloads/sheet-music-sweet-dreams.pdf)
 		/*
 		speed: 769, // 78 bpm
@@ -343,6 +342,7 @@ button {
 				2,,3,1,,,1]
 		*/
 		// Do-Re-Mi (The Sound of Music)
+		/*
 		speed: 200,
 		measureLength: 4,
 		notes: [1,,,2,3,,,1,3,,1,,3,,,,2,,,3,4,4,3,2,4,,,,
@@ -350,6 +350,7 @@ button {
 				5,,,1,2,3,4,5,6,,,,6,,,2,3,4,5,6,7,,,,
 				7,,,3,4,5,6,7,8,,,,,,7,6,5,,4,,7,,5,,8,,,,
 				1,,2,,3,,4,,5,,6,,7,,8]
+		*/
 	};
 	let notes = document.getElementById("notes");
 	// songLength can pad the end of song if necessary (taking measure length into account and filling up the remainder of a measure with rests)
