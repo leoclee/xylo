@@ -247,7 +247,7 @@
 			<label for="loop">Loop</label><input type="checkbox" id="loop"/><br/>
 			<!-- metadata controls -->
 			<label for="title">Title</label><input type="text" id="title"/>
-			<label for="speed">Speed</label><input type="range" id="speed"/>
+			<label for="speed">Speed</label><input type="range" id="speed" min="0" max="950"/>
 			<label for="measureLength">Measure Length</label><input type="number" id="measureLength" min="0" max="999" value="0"/>
 		</div>
 		<div id="notescontainer">
@@ -283,6 +283,10 @@
 		bar.style.animation = null;
 	}
 	function handleKeyPress(e) {
+		// do not play sounds if typing in an input (https://stackoverflow.com/a/2167126)
+		switch (e.target.tagName) {
+			case "INPUT": case "SELECT": case "TEXTAREA": return;
+		}
 		// TODO charCode is deprecated
 		let charCode = e.charCode;
 		if (e.charCode >=49 && e.charCode <= 56) {
@@ -314,16 +318,29 @@
 			updateCursor(0);
 		}
 	}
-	
+
 	document.addEventListener('keypress', handleKeyPress);
 	document.addEventListener('keydown', handleKeyDown);
+	window.addEventListener('hashchange', function() {
+		let params = new URLSearchParams(location.hash.substr(1));
+		// title
+		document.getElementById("title").value = params.get('t');
+		handleTitleInput(document.getElementById("title").value);
+		// speed
+		document.getElementById("speed").value = 1000-params.get('s');
+		handleSpeedInput(document.getElementById("speed").value);
+		// measure length
+		document.getElementById("measureLength").value = params.get('m');
+		handleMeasureLengthChange(document.getElementById("measureLength").value);
+		// TODO notes
+	}, false);
 	document.getElementById("volume").addEventListener('input', e => {
 		Howler.volume(e.target.value/100);
 	});
-	document.getElementById("speed").addEventListener('input', e => {
+	function handleSpeedInput(val) {
 		let oldSpeed = song.speed;
-		// maps 0 to 100 of input range to 50 to 1000 millis between notes
-		song.speed = ((100-e.target.value)*950/100)+50;
+		// maps 0 to 950 of input range to 1000 to 50 millis between notes
+		song.speed = 1000-val;
 		offsetTime = offsetTime * song.speed / oldSpeed;
 		if (id != null) {
 			offsetTime += (Date.now()-startTime) * song.speed / oldSpeed;
@@ -331,27 +348,42 @@
 		} else {
 			updateCursor(offsetTime);
 		}
-		writeHash()
+	}
+	document.getElementById("speed").addEventListener('input', e => {
+		handleSpeedInput(e.target.value);
 	});
-	document.getElementById("measureLength").addEventListener('input', e => {
-		song.measureLength = e.target.value;
-		updateMeasureLength();
+	// we use the change event because (at least in Chrome) it only fires on mouse release
+	document.getElementById("speed").addEventListener('change', () => {
 		writeHash();
 	});
+	function handleMeasureLengthChange(val) {
+		let el = document.getElementById("measureLength");
+		song.measureLength = Math.max(Math.min(val, el.max), el.min);
+		updateMeasureLength();
+		writeHash();
+	}
+	document.getElementById("measureLength").addEventListener('change', e => {
+		handleMeasureLengthChange(e.target.value);
+	});
+	function handleTitleInput(val) {
+		song.title = val;
+	}
 	document.getElementById("title").addEventListener('input', e => {
-		song.title = e.target.value;
+		handleTitleInput(e.target.value);
 		writeHash();
 	});
 
 	function writeHash() {
 		// TODO IE doesn't support URLSearchParams
-		window.location.hash = new URLSearchParams({
+		let hash = "#" + new URLSearchParams({
 			t: song.title,
 			s: song.speed,
 			m: song.measureLength,
 			// we can get a shorter hash if we can avoid using comma (which URL encodes to %2C)
 			n: song.notes.join('-')
 		}).toString();
+		// try not to junk up history by using location.replace instead of history.replaceState https://stackoverflow.com/a/6945614
+		location.replace(hash);
 	}
 
 	var song = {
@@ -411,8 +443,8 @@
 	document.getElementById("title").value = song.title;
 	// measure length
 	document.getElementById("measureLength").value = song.measureLength;
-	// maps 50 to 1000 millis between notes to 0 to 100 of input range
-	document.getElementById("speed").value = 100-((song.speed-50)/(950/100));
+	// maps 50 to 1000 millis between notes to 0 to 950 of input range
+	document.getElementById("speed").value = 1000-song.speed;
 	let notes = document.getElementById("notes");
 	var songLength;
 	updateMeasureLength();
