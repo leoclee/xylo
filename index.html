@@ -78,6 +78,7 @@
 
 
 #notescontainer {
+	width: calc(100% - 200px);
 	height: calc(400px + 20px);
 	position:relative;
 	overflow:auto;
@@ -216,11 +217,15 @@
 	transform-origin: left top;
 	*/
 }
-button {
-	/** this is temporary until I figure out a better place to put this thing **/
-	position: absolute;
-	top:0;
-	left:0;
+#controls {
+	width:200px;
+	border-right: 1px solid gray;
+}
+#playbutton {
+	width: 100%;
+}
+#bottomcontainer {
+	display:flex;
 }
 	</style>
 	<body>
@@ -234,11 +239,23 @@ button {
 		<a onclick="playSound(7);" id="bar7" class="bar"><span></span></a>
 		<a onclick="playSound(8);" id="bar8" class="bar"><span></span></a>
 	</div>
-	<div id="notescontainer">
-		<div id="cursor">
-			<div id="time"></div>
+	<div id="bottomcontainer">
+		<div id="controls">
+			<!-- playback controls -->
+			<button id="playbutton" onclick="play();">&#x23F5;</button>
+			<label for="volume">&#128264;</label><input type="range" value="100" id="volume"><br/>
+			<label for="loop">Loop</label><input type="checkbox" id="loop"/><br/>
+			<!-- metadata controls -->
+			<label for="title">Title</label><input type="text" id="title"/>
+			<label for="speed">Speed</label><input type="range" id="speed"/>
+			<label for="measureLength">Measure Length</label><input type="number" id="measureLength" min="0" max="999" value="0"/>
 		</div>
-		<div id="notes"></div>
+		<div id="notescontainer">
+			<div id="cursor">
+				<div id="time"></div>
+			</div>
+			<div id="notes"></div>
+		</div>
 	</div>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js" integrity="sha512-6+YN/9o9BWrk6wSfGxQGpt3EUK6XeHi6yeHV+TYD2GR0Sj/cggRpXr1BrAQf0as6XslxomMUxXp2vIl+fv0QRA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 	<script>
@@ -282,11 +299,7 @@ button {
 			playSound(8);
 		} else if (e.charCode == 32) {
 			// space
-			if (id == null) {
-				play();
-			} else {
-				pause();
-			}
+			play();
 		}
 	}
 	function handleKeyDown(e) {
@@ -301,38 +314,81 @@ button {
 			updateCursor(0);
 		}
 	}
+	
 	document.addEventListener('keypress', handleKeyPress);
 	document.addEventListener('keydown', handleKeyDown);
+	document.getElementById("volume").addEventListener('input', e => {
+		Howler.volume(e.target.value/100);
+	});
+	document.getElementById("speed").addEventListener('input', e => {
+		let oldSpeed = song.speed;
+		// maps 0 to 100 of input range to 50 to 1000 millis between notes
+		song.speed = ((100-e.target.value)*950/100)+50;
+		offsetTime = offsetTime * song.speed / oldSpeed;
+		if (id != null) {
+			offsetTime += (Date.now()-startTime) * song.speed / oldSpeed;
+			startTime = Date.now();
+		} else {
+			updateCursor(offsetTime);
+		}
+		writeHash()
+	});
+	document.getElementById("measureLength").addEventListener('input', e => {
+		song.measureLength = e.target.value;
+		updateMeasureLength();
+		writeHash();
+	});
+	document.getElementById("title").addEventListener('input', e => {
+		song.title = e.target.value;
+		writeHash();
+	});
 
+	function writeHash() {
+		// TODO IE doesn't support URLSearchParams
+		window.location.hash = new URLSearchParams({
+			t: song.title,
+			s: song.speed,
+			m: song.measureLength,
+			// we can get a shorter hash if we can avoid using comma (which URL encodes to %2C)
+			n: song.notes.join('-')
+		}).toString();
+	}
 
 	var song = {
 		// Mary Had a Little Lamb
 		/*
+		title: "Mary Had a Little Lamb",
 		speed: 400,
 		measureLength: 4,
 		notes: [3,2,1,2,3,3,3,,2,2,2,,3,5,5,,3,2,1,2,3,3,3,3,2,2,3,2,1]
 		*/
 		// Row, Row Your Boat
 		/*
+		title: "Row, Row Your Boat",
 		speed: 175,
 		measureLength: 6,
 		notes: [1,,,1,,,1,,2,3,,,3,,2,3,,4,5,,,,,,8,8,8,5,5,5,3,3,3,1,1,1,5,,4,3,,2,1]
 		*/
 		// Twinkle Twinkle Little Star
 		/*
+		title: "Twinkle Twinkle Little Star",
 		speed: 300,
 		measureLength: 4,
 		notes: [1,1,5,5,6,6,5,,4,4,3,3,2,2,1,,5,5,4,4,3,3,2,,5,5,4,4,3,3,2,,1,1,5,5,6,6,5,,4,4,3,3,2,2,1]
 		*/
 		// Old MacDonald
+		/*
+		title: "Old MacDonald",
 		speed: 150,
 		measureLength: 8,
 		notes: [5,,5,,5,,2,,3,,3,,2,,,,7,,7,,6,,6,,5,,,,,,2,,
 		        5,,5,,5,,2,,3,,3,,2,,,,7,,7,,6,,6,,5,,,,,,2,2,
 				5,,5,,5,,2,2,5,,5,,5,,,,5,5,5,,5,5,5,, 5,5,5,5,5,,5,,
 				5,,5,,5,,2,,3,,3,,2,,,,7,,7,,6,,6,,5]
+		*/
 		// Sweet Dreams (Goodnight Song) by Super Simple (see https://supersimple.com/downloads/sheet-music-sweet-dreams.pdf)
 		/*
+		title: "Sweet Dreams (Goodnight Song)",
 		speed: 769, // 78 bpm
 		measureLength: 3,
 		notes: [,,3,
@@ -342,7 +398,7 @@ button {
 				2,,3,1,,,1]
 		*/
 		// Do-Re-Mi (The Sound of Music)
-		/*
+		title: "Do-Re-Mi",
 		speed: 200,
 		measureLength: 4,
 		notes: [1,,,2,3,,,1,3,,1,,3,,,,2,,,3,4,4,3,2,4,,,,
@@ -350,12 +406,16 @@ button {
 				5,,,1,2,3,4,5,6,,,,6,,,2,3,4,5,6,7,,,,
 				7,,,3,4,5,6,7,8,,,,,,7,6,5,,4,,7,,5,,8,,,,
 				1,,2,,3,,4,,5,,6,,7,,8]
-		*/
 	};
+	// song title
+	document.getElementById("title").value = song.title;
+	// measure length
+	document.getElementById("measureLength").value = song.measureLength;
+	// maps 50 to 1000 millis between notes to 0 to 100 of input range
+	document.getElementById("speed").value = 100-((song.speed-50)/(950/100));
 	let notes = document.getElementById("notes");
-	// songLength can pad the end of song if necessary (taking measure length into account and filling up the remainder of a measure with rests)
-	let songLength = (song.measureLength && song.measureLength > 0 && song.measureLength < song.notes.length) ? Math.ceil(song.notes.length/song.measureLength)*song.measureLength : song.notes.length;
-	notes.style.width = songLength * 50;
+	var songLength;
+	updateMeasureLength();
 	notes.addEventListener('click', function(e) {
 		offsetTime = Math.min((songLength - 1) * song.speed, Math.max(0, e.offsetX - 23) * song.speed / 50);
 		nextNotesIndexToPlay = Math.ceil(offsetTime / song.speed);
@@ -376,10 +436,25 @@ button {
 			notes.appendChild(note);
 		}
 	}
-	// draw bar lines
-	if (song.measureLength && song.measureLength > 0 && song.measureLength < songLength) {
-		let width = song.measureLength * 50;
-		notes.style.background = "repeating-linear-gradient(to right, rgb(0,0,0,0) 0, rgb(0,0,0,0) " + (width - 4) + "px, grey " + (width - 2) + "px, rgb(0,0,0,0) " + width + "px)";
+
+	function updateMeasureLength() {
+		// songLength can pad the end of song if necessary (taking measure length into account and filling up the remainder of a measure with rests)
+		songLength = (song.measureLength && song.measureLength > 0 && song.measureLength < song.notes.length) ? Math.ceil(song.notes.length/song.measureLength)*song.measureLength : song.notes.length
+		if (song.measureLength && song.measureLength > 0 && song.measureLength < songLength) {
+			// draw bar lines
+			let width = song.measureLength * 50;
+			notes.style.background = "repeating-linear-gradient(to right, rgb(0,0,0,0) 0, rgb(0,0,0,0) " + (width - 4) + "px, grey " + (width - 2) + "px, rgb(0,0,0,0) " + width + "px)";
+		} else {
+			// remove bar lines
+			notes.style.background = "";
+		}
+		// update notes width
+		notes.style.width = songLength * 50;
+
+		// if the cursor is now past the end, move it back to the end
+		if (document.getElementById("cursor").style.left.slice(0,-2) > (songLength-1)*50 + 25 - 2) {
+			updateCursor((songLength-1)*song.speed);
+		}
 	}
 
 	var id = null;
@@ -388,6 +463,10 @@ button {
 	var nextNotesIndexToPlay = 0;
 	updateCursor(offsetTime);
 	function play() {
+		if (id != null) {
+			// already playing, so pause
+			return pause();
+		}
 		clearInterval(id);
 		startTime = Date.now();
 		id = setInterval(frame, 20); // 16 is 120 fps, 41 is about 24 fps
@@ -417,8 +496,11 @@ button {
 				id = null;
 				nextNotesIndexToPlay = 0;
 				offsetTime = 0;
-				// TODO repeat
-				//setTimeout(play, song.speed);
+
+				// loop/repeat
+				if (document.getElementById("loop").checked) {
+					setTimeout(play, song.speed);
+				}
 			}
 		}
 	}
