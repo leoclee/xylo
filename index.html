@@ -327,11 +327,6 @@
 	document.addEventListener('keypress', handleKeyPress);
 	document.addEventListener('keydown', handleKeyDown);
 	function handleHashChange() {
-		// stop playback and reset everything
-		pause();
-		offsetTime = 0;
-		nextNotesIndexToPlay = 0;
-
 		let hash = location.hash.substr(1);
 		if (!hash) {
 			hash = "t=&s=500&m=4&n=";
