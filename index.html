@@ -229,7 +229,7 @@
 }
 	</style>
 	<body>
-	<div id="container">
+	<div id="container" class="letter">
 		<a onclick="playSound(1);" id="bar1" class="bar"><span></span></a>
 		<a onclick="playSound(2);" id="bar2" class="bar"><span></span></a>
 		<a onclick="playSound(3);" id="bar3" class="bar"><span></span></a>
@@ -245,6 +245,15 @@
 			<button id="playbutton" onclick="play();">&#x23F5;</button>
 			<label for="volume">&#128264;</label><input type="range" value="100" id="volume"><br/>
 			<label for="loop">Loop</label><input type="checkbox" id="loop"/><br/>
+			<div>
+				<input type="radio" id="radioLetters" name="labels" value="letters" checked>
+				<label for="radioLetters">CDEFGABC</label>
+			</div>
+			<div>
+				<input type="radio" id="radioNumbers" name="labels" value="numbers">
+				<label for="radioNumbers">12345678</label>
+			</div>
+			<hr>
 			<!-- metadata controls -->
 			<label for="title">Title</label><input type="text" id="title"/>
 			<label for="speed">Speed</label><input type="range" id="speed" min="0" max="950"/>
@@ -254,7 +263,7 @@
 			<div id="cursor">
 				<div id="time"></div>
 			</div>
-			<div id="notes"></div>
+			<div id="notes" class="letter"></div>
 		</div>
 	</div>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js" integrity="sha512-6+YN/9o9BWrk6wSfGxQGpt3EUK6XeHi6yeHV+TYD2GR0Sj/cggRpXr1BrAQf0as6XslxomMUxXp2vIl+fv0QRA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -347,6 +356,14 @@
 	window.addEventListener('hashchange', handleHashChange, false);
 	document.getElementById("volume").addEventListener('input', e => {
 		Howler.volume(e.target.value/100);
+	});
+	function handleLabelChange() {
+		notes.classList.toggle("letter");
+		document.getElementById("container").classList.toggle("letter");
+	}
+	var radios = document.querySelectorAll('input[type=radio][name="labels"]');
+	Array.prototype.forEach.call(radios, function(radio) {
+		radio.addEventListener('change', handleLabelChange);
 	});
 	function handleSpeedInput(val) {
 		let oldSpeed = song.speed;
