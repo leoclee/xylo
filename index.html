@@ -318,22 +318,38 @@
 			updateCursor(0);
 		}
 	}
-
+	let notes = document.getElementById("notes");
+	var songLength;
+	var id = null;
+	var offsetTime = 0;
+	var startTime;
+	var nextNotesIndexToPlay = 0;
 	document.addEventListener('keypress', handleKeyPress);
 	document.addEventListener('keydown', handleKeyDown);
-	window.addEventListener('hashchange', function() {
-		let params = new URLSearchParams(location.hash.substr(1));
+	function handleHashChange() {
+		// stop playback and reset everything
+		pause();
+		offsetTime = 0;
+		nextNotesIndexToPlay = 0;
+
+		let hash = location.hash.substr(1);
+		if (!hash) {
+			hash = "t=&s=500&m=4&n=";
+		}
+		let params = new URLSearchParams(hash);
+		song.notes = params.get('n').split("-");
+		updateNotes();
 		// title
 		document.getElementById("title").value = params.get('t');
 		handleTitleInput(document.getElementById("title").value);
-		// speed
-		document.getElementById("speed").value = 1000-params.get('s');
-		handleSpeedInput(document.getElementById("speed").value);
 		// measure length
 		document.getElementById("measureLength").value = params.get('m');
 		handleMeasureLengthChange(document.getElementById("measureLength").value);
-		// TODO notes
-	}, false);
+		// speed
+		document.getElementById("speed").value = 1000-params.get('s');
+		handleSpeedInput(document.getElementById("speed").value);
+	}
+	window.addEventListener('hashchange', handleHashChange, false);
 	document.getElementById("volume").addEventListener('input', e => {
 		Howler.volume(e.target.value/100);
 	});
@@ -341,9 +357,9 @@
 		let oldSpeed = song.speed;
 		// maps 0 to 950 of input range to 1000 to 50 millis between notes
 		song.speed = 1000-val;
-		offsetTime = offsetTime * song.speed / oldSpeed;
+		offsetTime = oldSpeed ? offsetTime * song.speed / oldSpeed : offsetTime;
 		if (id != null) {
-			offsetTime += (Date.now()-startTime) * song.speed / oldSpeed;
+			offsetTime += oldSpeed ? (Date.now()-startTime) * song.speed / oldSpeed : Date.now()-startTime;
 			startTime = Date.now();
 		} else {
 			updateCursor(offsetTime);
@@ -360,10 +376,10 @@
 		let el = document.getElementById("measureLength");
 		song.measureLength = Math.max(Math.min(val, el.max), el.min);
 		updateMeasureLength();
-		writeHash();
 	}
 	document.getElementById("measureLength").addEventListener('change', e => {
 		handleMeasureLengthChange(e.target.value);
+		writeHash();
 	});
 	function handleTitleInput(val) {
 		song.title = val;
@@ -430,6 +446,7 @@
 				2,,3,1,,,1]
 		*/
 		// Do-Re-Mi (The Sound of Music)
+		/*
 		title: "Do-Re-Mi",
 		speed: 200,
 		measureLength: 4,
@@ -438,16 +455,18 @@
 				5,,,1,2,3,4,5,6,,,,6,,,2,3,4,5,6,7,,,,
 				7,,,3,4,5,6,7,8,,,,,,7,6,5,,4,,7,,5,,8,,,,
 				1,,2,,3,,4,,5,,6,,7,,8]
+		*/
 	};
+	handleHashChange();
+	/*
 	// song title
 	document.getElementById("title").value = song.title;
 	// measure length
 	document.getElementById("measureLength").value = song.measureLength;
 	// maps 50 to 1000 millis between notes to 0 to 950 of input range
 	document.getElementById("speed").value = 1000-song.speed;
-	let notes = document.getElementById("notes");
-	var songLength;
 	updateMeasureLength();
+	*/
 	notes.addEventListener('click', function(e) {
 		offsetTime = Math.min((songLength - 1) * song.speed, Math.max(0, e.offsetX - 23) * song.speed / 50);
 		nextNotesIndexToPlay = Math.ceil(offsetTime / song.speed);
@@ -457,22 +476,27 @@
 			updateCursor(offsetTime);
 		}
 	});
-	for (const [i, value] of song.notes.entries()) {
-		if (value && value > 0) {
-			let note = document.createElement("div");
-			let span = document.createElement("span");
-			note.style.left = i*50;
-			note.className = "note note" + value;
-			note.dataset.index = i;
-			note.appendChild(span);
-			notes.appendChild(note);
+	function updateNotes() {
+		while (notes.firstChild) {
+			notes.firstChild.remove();
+		}
+		for (const [i, value] of song.notes.entries()) {
+			if (value && value > 0) {
+				let note = document.createElement("div");
+				let span = document.createElement("span");
+				note.style.left = i*50;
+				note.className = "note note" + value;
+				note.dataset.index = i;
+				note.appendChild(span);
+				notes.appendChild(note);
+			}
 		}
 	}
 
 	function updateMeasureLength() {
 		// songLength can pad the end of song if necessary (taking measure length into account and filling up the remainder of a measure with rests)
-		songLength = (song.measureLength && song.measureLength > 0 && song.measureLength < song.notes.length) ? Math.ceil(song.notes.length/song.measureLength)*song.measureLength : song.notes.length
-		if (song.measureLength && song.measureLength > 0 && song.measureLength < songLength) {
+		songLength = (song.measureLength && song.measureLength > 0) ? Math.ceil(song.notes.length/song.measureLength)*song.measureLength : song.notes.length
+		if (song.measureLength && song.measureLength > 0) {
 			// draw bar lines
 			let width = song.measureLength * 50;
 			notes.style.background = "repeating-linear-gradient(to right, rgb(0,0,0,0) 0, rgb(0,0,0,0) " + (width - 4) + "px, grey " + (width - 2) + "px, rgb(0,0,0,0) " + width + "px)";
@@ -488,11 +512,6 @@
 			updateCursor((songLength-1)*song.speed);
 		}
 	}
-
-	var id = null;
-	var offsetTime = 0;
-	var startTime;
-	var nextNotesIndexToPlay = 0;
 	updateCursor(offsetTime);
 	function play() {
 		if (id != null) {
