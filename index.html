@@ -403,7 +403,7 @@
 	});
 	function handleTitleInput(val) {
 		song.title = val;
-		document.title = val + " - " + title;
+		document.title = (val && val.trim()) ? val.trim() + " - " + title : title;
 	}
 	document.getElementById("title").addEventListener('input', e => {
 		handleTitleInput(e.target.value);
