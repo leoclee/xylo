@@ -1,14 +1,18 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 	<head>
 		<meta charset="utf-8">
 		<title>XYLO</title>
 		<style>
-		 body {
+		body,html {
+			height: 100%;
+		}
+		body {
 			font-family: Sans-Serif;
 			margin:0;
 			padding:0;
 			background-color:#333;
-		 }
+		}
 		.bar {
 			border:4px solid black;
 			border-radius: 2em;
@@ -100,7 +104,6 @@
 		rgba(0,0,0,0) 377px);
 }
 #notes {
-	position: absolute;
 	height:100%;
 }
 .note {
@@ -502,7 +505,7 @@
 			if (value && value > 0) {
 				let note = document.createElement("div");
 				let span = document.createElement("span");
-				note.style.left = i*50;
+				note.style.left = i*50 + "px";
 				note.className = "note note" + value;
 				note.dataset.index = i;
 				note.appendChild(span);
@@ -523,7 +526,7 @@
 			notes.style.background = "";
 		}
 		// update notes width
-		notes.style.width = songLength * 50;
+		notes.style.width = songLength * 50 + "px";
 
 		// if the cursor is now past the end, move it back to the end
 		if (document.getElementById("cursor").style.left.slice(0,-2) > (songLength-1)*50 + 25 - 2) {
@@ -587,7 +590,7 @@
 		// this will probably start doing weird stuff for anything over an hour (unlikely?)
 		document.getElementById("time").innerText = new Date(Math.min((songLength - 1) * song.speed, millis)).toISOString().substr(14, 9);
 		// set cursor position
-		document.getElementById("cursor").style.left = (millis * 50 / song.speed) + 25 - 2;
+		document.getElementById("cursor").style.left = ((millis * 50 / song.speed) + 25 - 2) + "px";
 	}
 	</script>
 	</body>
