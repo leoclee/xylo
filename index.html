@@ -379,9 +379,11 @@
 		song.speed = 1000-val;
 		offsetTime = oldSpeed ? offsetTime * song.speed / oldSpeed : offsetTime;
 		if (id != null) {
+			// playing
 			offsetTime += oldSpeed ? (Date.now()-startTime) * song.speed / oldSpeed : Date.now()-startTime;
 			startTime = Date.now();
 		} else {
+			// not playing
 			updateCursor(offsetTime);
 		}
 	}
@@ -530,7 +532,12 @@
 
 		// if the cursor is now past the end, move it back to the end
 		if (document.getElementById("cursor").style.left.slice(0,-2) > (songLength-1)*50 + 25 - 2) {
-			updateCursor((songLength-1)*song.speed);
+			nextNotesIndexToPlay = songLength;
+			offsetTime = (songLength-1)*song.speed;
+			if (id != null) {
+				startTime = Date.now();
+			}
+			updateCursor(offsetTime);
 		}
 	}
 	updateCursor(offsetTime);
@@ -542,6 +549,10 @@
 		clearInterval(id);
 		startTime = Date.now();
 		id = setInterval(frame, 20); // 16 is 120 fps, 41 is about 24 fps
+		if (nextNotesIndexToPlay >= songLength) {
+			offsetTime = 0;
+			nextNotesIndexToPlay = 0;
+		}
 		function frame() {
 			let cursor = document.getElementById("cursor");
 			let elapsedTime = offsetTime + Date.now() - startTime;
@@ -563,11 +574,10 @@
 				nextNotesIndexToPlay++;
 			}
 
-			if (nextNotesIndexToPlay >= songLength) {
+			if (nextNotesIndexToPlay >= songLength || elapsedTime > (songLength-1)*song.speed) {
 				clearInterval(id);
 				id = null;
-				nextNotesIndexToPlay = 0;
-				offsetTime = 0;
+				offsetTime = (songLength-1)*song.speed;
 
 				// loop/repeat
 				if (document.getElementById("loop").checked) {
@@ -588,9 +598,9 @@
 		// set time
 		// inspired by https://stackoverflow.com/a/25279399
 		// this will probably start doing weird stuff for anything over an hour (unlikely?)
-		document.getElementById("time").innerText = new Date(Math.min((songLength - 1) * song.speed, millis)).toISOString().substr(14, 9);
+		document.getElementById("time").innerText = new Date(Math.min((songLength-1) * song.speed, millis)).toISOString().substr(14, 9);
 		// set cursor position
-		document.getElementById("cursor").style.left = ((millis * 50 / song.speed) + 25 - 2) + "px";
+		document.getElementById("cursor").style.left = (Math.min((songLength-1)*50, (millis * 50 / song.speed)) + 25 - 2) + "px";
 	}
 	</script>
 	</body>
