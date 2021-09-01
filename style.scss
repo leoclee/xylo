@@ -1,0 +1,238 @@
+$fisher-price-purple: #231852;
+$fisher-price-blue: #0060c1;
+$fisher-price-light-blue: #00b0c8;
+$fisher-price-green: #6aae00;
+$fisher-price-yellow: #e5e219;
+$fisher-price-orange: #fc9200;
+$fisher-price-red-orange: #ed181e;
+$fisher-price-red: #a50010;
+
+		body,html {
+			height: 100%;
+		}
+		body {
+			font-family: Sans-Serif;
+			margin:0;
+			padding:0;
+			background-color:#333;
+		}
+		.bar {
+			border:4px solid black;
+			border-radius: 2em;
+			flex-grow: 1;
+			text-align: center;
+			height: calc(100% - 8px);
+			margin:0 .25%;
+			/** center vertically, alternative is to use line-height:20em **/
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
+		.played {
+			box-shadow: 0 0 0 0 rgba(255, 255, 255, 1);
+			animation: pulse 2s;
+		}
+		.bar span {
+			background-color: #FFF;
+			border-radius: 50%;
+			width: 30px;
+			height: 30px;
+			line-height: 30px;
+		}
+		#container {
+			width:100%;
+			display: flex;
+			height: calc(100% - 420px);
+			min-height: 50px;
+		}
+		#bar1 {
+			background-color: $fisher-price-purple;
+		}
+		#bar2 {
+			background-color: $fisher-price-blue;
+		}
+		#bar3 {
+			background-color: $fisher-price-light-blue;
+		}
+		#bar4 {
+			background-color: $fisher-price-green;
+		}
+		#bar5 {
+			background-color: $fisher-price-yellow;
+		}
+		#bar6 {
+			background-color: $fisher-price-orange;
+		}
+		#bar7 {
+			background-color: $fisher-price-red-orange;
+		}
+		#bar8 {
+			background-color: $fisher-price-red;
+		}
+/** see https://www.florin-pop.com/blog/2019/03/css-pulse-effect/ **/
+/** TODO look into how we can get the shadows entirely over or entirely under adjacent elements https://blog.dudak.me/2014/css-shadows-under-adjacent-elements/ **/
+@keyframes pulse {
+	0% {
+		box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
+	}
+
+	70% {
+		box-shadow: 0 0 0 30px rgba(255, 255, 255, 0);
+	}
+
+	100% {
+		box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+	}
+}
+
+
+
+#notescontainer {
+	width: calc(100% - 200px);
+	height: calc(400px + 20px);
+	position:relative;
+	overflow:auto;
+    background: linear-gradient(to bottom,
+		rgba(0,0,0,0) 73px,
+		gray 75px,
+		rgba(0,0,0,0) 77px,
+		rgba(0,0,0,0) 173px,
+		gray 175px,
+		rgba(0,0,0,0) 177px,
+		rgba(0,0,0,0) 273px,
+		gray 275px,
+		rgba(0,0,0,0) 277px,
+		rgba(0,0,0,0) 373px,
+		gray 375px,
+		rgba(0,0,0,0) 377px);
+}
+#notes {
+	height:100%;
+}
+.note {
+	position:absolute;
+	height: 30px;
+	width: 30px;
+	border-radius: 50%;
+	background-color:white;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	border: 10px solid black;
+	pointer-events: none; /* can't deal with the offset changes right now https://stackoverflow.com/a/60272705 */
+}
+.note span {
+	/* this span is only here to make sure the shadow animation appears under adjacent elements */
+	position:absolute;
+	height: 50px;
+	width: 50px;
+	z-index: -1;
+	border-radius: 50%;
+}
+.note1 {
+	border-color: $fisher-price-purple;
+	top: 350px;
+}
+.note2 {
+	border-color: $fisher-price-blue;
+	top: 300px;
+}
+.note3 {
+	border-color: $fisher-price-light-blue;
+	top: 250px;
+}
+.note4 {
+	border-color: $fisher-price-green;
+	top: 200px;
+}
+.note5 {
+	border-color: $fisher-price-yellow;
+	top: 150px;
+}
+.note6 {
+	border-color: $fisher-price-orange;
+	top: 100px;
+}
+.note7 {
+	border-color: $fisher-price-red-orange;
+	top: 50px;
+}
+.note8 {
+	border-color: $fisher-price-red;
+	top: 0px;
+}
+.note1:before, #bar1 span:before {
+	content: "1";
+}
+.note2:before, #bar2 span:before {
+	content: "2";
+}
+.note3:before, #bar3 span:before {
+	content: "3";
+}
+.note4:before, #bar4 span:before {
+	content: "4";
+}
+.note5:before, #bar5 span:before {
+	content: "5";
+}
+.note6:before, #bar6 span:before {
+	content: "6";
+}
+.note7:before, #bar7 span:before {
+	content: "7";
+}
+.note8:before, #bar8 span:before {
+	content: "8";
+}
+.letter .note1:before, .letter #bar1 span:before, .letter .note8:before, .letter #bar8 span:before {
+	content: "C";
+}
+.letter .note2:before, .letter #bar2 span:before {
+	content: "D";
+}
+.letter .note3:before, .letter #bar3 span:before {
+	content: "E";
+}
+.letter .note4:before, .letter #bar4 span:before {
+	content: "F";
+}
+.letter .note5:before, .letter #bar5 span:before {
+	content: "G";
+}
+.letter .note6:before, .letter #bar6 span:before {
+	content: "A";
+}
+.letter .note7:before, .letter #bar7 span:before {
+	content: "B";
+}
+#cursor {
+	height:100%;
+	width:4px;
+	background-color:yellow;
+	position:absolute;
+}
+#time {
+	height: 25px;
+	line-height: 25px;
+	color: yellow;
+	opacity: 0.5;
+	font-size:25px;
+	position: absolute;
+	transform: rotate(-90deg) translateY(-100%) translateX(-100%);
+	transform-origin: top left;
+	/* // use this for the reverse rotation
+	transform: rotate(90deg);
+	transform-origin: left top;
+	*/
+}
+#controls {
+	width:200px;
+	border-right: 1px solid gray;
+}
+#playbutton {
+	width: 100%;
+}
+#bottomcontainer {
+	display:flex;
+}
