@@ -518,7 +518,7 @@
 
 	function updateMeasureLength() {
 		// songLength can pad the end of song if necessary (taking measure length into account and filling up the remainder of a measure with rests)
-		songLength = (song.measureLength && song.measureLength > 0) ? Math.ceil(song.notes.length/song.measureLength)*song.measureLength : song.notes.length
+		songLength = (song.measureLength && song.measureLength > 0) ? Math.max(1,Math.ceil(song.notes.length/song.measureLength))*song.measureLength : song.notes.length
 		if (song.measureLength && song.measureLength > 0) {
 			// draw bar lines
 			let width = song.measureLength * 50;
