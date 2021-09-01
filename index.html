@@ -349,7 +349,7 @@
 			hash = "t=&s=500&m=4&n=";
 		}
 		let params = new URLSearchParams(hash);
-		song.notes = params.get('n').split("").map(x => x === "-" ? null : x);
+		song.notes = params.get('n').split("").map(x => Number(x) ? Number(x) : null).map(x => x > 0 && x < 9 ? x : null);
 		updateNotes();
 		// title
 		document.getElementById("title").value = params.get('t');
