@@ -349,7 +349,7 @@
 			hash = "t=&s=500&m=4&n=";
 		}
 		let params = new URLSearchParams(hash);
-		song.notes = params.get('n').split("-");
+		song.notes = params.get('n').split("").map(x => x === "-" ? null : x);
 		updateNotes();
 		// title
 		document.getElementById("title").value = params.get('t');
@@ -419,7 +419,7 @@
 			s: song.speed,
 			m: song.measureLength,
 			// we can get a shorter hash if we can avoid using comma (which URL encodes to %2C)
-			n: song.notes.join('-')
+			n: song.notes.join('-').replaceAll(/-(\d)/g,"$1")
 		}).toString();
 		// try not to junk up history by using location.replace instead of history.replaceState https://stackoverflow.com/a/6945614
 		location.replace(hash);
