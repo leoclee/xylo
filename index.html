@@ -1,5 +1,8 @@
 <html>
-	<style>
+	<head>
+		<meta charset="utf-8">
+		<title>XYLO</title>
+		<style>
 		 body {
 			font-family: Sans-Serif;
 			margin:0;
@@ -227,7 +230,8 @@
 #bottomcontainer {
 	display:flex;
 }
-	</style>
+		</style>
+	</head>
 	<body>
 	<div id="container" class="letter">
 		<a onclick="playSound(1);" id="bar1" class="bar"><span></span></a>
@@ -268,6 +272,7 @@
 	</div>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js" integrity="sha512-6+YN/9o9BWrk6wSfGxQGpt3EUK6XeHi6yeHV+TYD2GR0Sj/cggRpXr1BrAQf0as6XslxomMUxXp2vIl+fv0QRA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 	<script>
+	var title = document.title;
 	// sounds by NoiseCollector (https://freesound.org/people/NoiseCollector/packs/6829/)
 	var sounds = [
 		new Howl({src: ['sounds/107510__noisecollector__toyxlo1.wav']}),
@@ -395,6 +400,7 @@
 	});
 	function handleTitleInput(val) {
 		song.title = val;
+		document.title = val + " - " + title;
 	}
 	document.getElementById("title").addEventListener('input', e => {
 		handleTitleInput(e.target.value);
